@@ -1,0 +1,30 @@
+model Property {
+  id             String         @id @default(uuid())
+  title          String
+  description    String
+  address        String
+  city           String
+  area           Float?
+  rent           Decimal        @db.Decimal(10, 2)
+  bedrooms       Int
+  bathrooms      Int
+  furnished      Boolean        @default(false)
+  parking        Boolean        @default(false)
+  availableFrom  DateTime?
+  status         PropertyStatus @default(AVAILABLE)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  landlordId String
+  landlord   User   @relation("LandlordProperties", fields: [landlordId], references: [id], onDelete: Cascade)
+
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  images         PropertyImage[]
+  rentalRequests RentalRequest[]
+  reviews        Review[]
+
+  @@index([city, rent, categoryId])
+  @@map("properties")
+}
