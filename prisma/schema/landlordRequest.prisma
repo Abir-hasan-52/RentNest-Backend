@@ -11,5 +11,7 @@ model LandlordRequest {
   userId String @unique
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+
+@@index([status])
   @@map("landlord_requests")
 }
