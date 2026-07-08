@@ -9,6 +9,12 @@ enum UserStatus {
   BANNED
 }
 
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 enum PropertyStatus {
   AVAILABLE
   UNAVAILABLE

@@ -1,0 +1,15 @@
+model LandlordRequest {
+  id            String         @id @default(uuid())
+  nidNumber     String?
+  tradeLicense  String?
+  reason        String?
+  status        ApprovalStatus @default(PENDING)
+  reviewNote    String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("landlord_requests")
+}
