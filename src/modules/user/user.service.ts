@@ -47,7 +47,7 @@ const registerUserIntoDB = async (payload: IRegisterUserPayload) => {
 
   const result = await prisma.$transaction(async (tx) => {
     // Always create as TENANT
-    const user = await tx.user.create({
+    const CreateUser = await tx.user.create({
       data: {
         name,
         email,
@@ -66,7 +66,7 @@ const registerUserIntoDB = async (payload: IRegisterUserPayload) => {
     if (role === Role.LANDLORD) {
       await tx.landlordRequest.create({
         data: {
-          userId: user.id,
+          userId: CreateUser.id,
           nidNumber,
           tradeLicense,
           reason,
@@ -74,6 +74,25 @@ const registerUserIntoDB = async (payload: IRegisterUserPayload) => {
         },
       });
     }
+       // Return Fresh User with Relation
+    const user = await tx.user.findUnique({
+      where: {
+        id: CreateUser.id,
+      },
+      include: {
+        landlordRequest: {
+          select: {
+            reason: true,
+            status: true,
+            nidNumber: true,
+            tradeLicense: true,
+          },
+        },
+      },
+      omit: {
+        password: true,
+      },
+    });
 
     return user;
   });
