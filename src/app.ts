@@ -8,6 +8,7 @@ import bcrypt from "bcryptjs";
 import { Role, ApprovalStatus } from "../generated/prisma/enums";
 import { userRouter } from "./modules/user/user.route";
 import { authRouter } from "./modules/auth/auth.route";
+import { categoryRouter } from "./modules/admin/category.route";
 // import { Role } from "../generated/prisma/browser";
 
 const app: Application = express();
@@ -27,8 +28,9 @@ app.get("/", (req: Request, res: Response) => {
   res.send("Welcome to the RentNest API!");
 });
 
-
 app.use("/api/user", userRouter);
 app.use("/api/auth", authRouter);
+
+app.use("/api/admin", categoryRouter);
 
 export default app;
