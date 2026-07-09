@@ -9,6 +9,7 @@ import { Role, ApprovalStatus } from "../generated/prisma/enums";
 import { userRouter } from "./modules/user/user.route";
 import { authRouter } from "./modules/auth/auth.route";
 import { categoryRouter } from "./modules/admin/category.route";
+import { landlordRouter } from "./modules/admin/landlordRequest/landlordRequest.router";
 // import { Role } from "../generated/prisma/browser";
 
 const app: Application = express();
@@ -32,5 +33,7 @@ app.use("/api/user", userRouter);
 app.use("/api/auth", authRouter);
 
 app.use("/api/admin", categoryRouter);
+
+app.use("/api/admin",landlordRouter)
 
 export default app;
