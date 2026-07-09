@@ -7,8 +7,6 @@ import config from "../../config";
 import { ApprovalStatus, Role } from "../../../generated/prisma/enums";
 import { IRegisterUserPayload } from "./user.interface";
 
-
-
 const registerUserIntoDB = async (payload: IRegisterUserPayload) => {
   const {
     name,
@@ -57,9 +55,9 @@ const registerUserIntoDB = async (payload: IRegisterUserPayload) => {
         address,
         role: Role.TENANT,
       },
-       omit:{
-        password:true
-       }
+      omit: {
+        password: true,
+      },
     });
 
     // If user requested landlord
@@ -74,7 +72,7 @@ const registerUserIntoDB = async (payload: IRegisterUserPayload) => {
         },
       });
     }
-       // Return Fresh User with Relation
+    // Return Fresh User with Relation
     const user = await tx.user.findUnique({
       where: {
         id: CreateUser.id,
@@ -103,6 +101,19 @@ const registerUserIntoDB = async (payload: IRegisterUserPayload) => {
   };
 };
 
+const getMyProfileFromDB = async (userId: string) => {
+  const user = await prisma.user.findUniqueOrThrow({
+    where: {
+      id: userId,
+    },
+    omit: {
+      password: true,
+    },
+  });
+  return user;
+};
+
 export const userService = {
   registerUserIntoDB,
+  getMyProfileFromDB,
 };
