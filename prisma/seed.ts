@@ -7,12 +7,12 @@ import config from "../src/config";
 async function main() {
 
   // Environment Variables
-  const adminName = config.admin_name || "RentNest Admin";
+  // const adminName = config.admin_name || "RentNest Admin";
   const adminEmail = config.admin_email;
   const adminPassword = config.admin_password;
 
   if (!adminEmail || !adminPassword) {
-    throw new Error("ADMIN_EMAIL and ADMIN_PASSWORD must be provided in .env");
+    throw new Error("ADMIN_EMAIL and ADMIN_PASSWORD must be provided in the environment variables.");
   }
 
   // Check Existing Admin
@@ -39,7 +39,6 @@ async function main() {
 
   const admin = await prisma.user.create({
     data: {
-      name: adminName,
       email: adminEmail,
       password: hashedPassword,
       role: Role.ADMIN,
