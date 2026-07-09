@@ -7,7 +7,7 @@ import config from "../src/config";
 async function main() {
 
   // Environment Variables
-  // const adminName = config.admin_name || "RentNest Admin";
+  const adminName = config.admin_name || "RentNest Admin";
   const adminEmail = config.admin_email;
   const adminPassword = config.admin_password;
 
@@ -39,6 +39,7 @@ async function main() {
 
   const admin = await prisma.user.create({
     data: {
+      name: adminName,
       email: adminEmail,
       password: hashedPassword,
       role: Role.ADMIN,
