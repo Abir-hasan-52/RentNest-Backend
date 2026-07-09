@@ -77,7 +77,37 @@ const updateLandlordRequestFromDb = async (
   return result;
 };
 
+const getSingleRequestFromDb= async(landlordRequestId:string)=>{
+    const request = await prisma.landlordRequest.findUniqueOrThrow({
+    where: {
+      id: landlordRequestId,
+    },
+    include: {
+      user: {
+        omit: {
+          password: true,
+        },
+      },
+    },
+  });
+
+  return request;
+
+};
+
+const getOnlyMyRequest = async (userId: string) => {
+  const result = await prisma.landlordRequest.findUniqueOrThrow({
+    where: {
+      userId,
+    },
+  });
+
+  return result;
+};
+
 export const landlordService = {
   getAllLandlordRequestFromDb,
   updateLandlordRequestFromDb,
+  getSingleRequestFromDb,
+  getOnlyMyRequest
 };

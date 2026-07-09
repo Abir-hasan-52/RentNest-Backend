@@ -3,6 +3,7 @@ import { catchAsync } from "../../../utils/catchAsync";
 import { landlordService } from "./landlordRequest.service";
 import { sendResponse } from "../../../utils/sendResponse";
 import httpStatus from "http-status"
+ 
 
 const getAllLandlordRequest=catchAsync(async(req:Request,res:Response,next:NextFunction)=>{
 const result = await landlordService.getAllLandlordRequestFromDb();
@@ -24,9 +25,36 @@ const updateLandlordRequest= catchAsync(async(req:Request,res:Response,next:Next
       message: "Landlord request updated successfully.",
       data: result,
     });
+});
+const getSingleRequest= catchAsync(async(req:Request,res:Response,next:NextFunction)=>{
+      const { id } = req.params;
+
+  const result = await landlordService.getSingleRequestFromDb(id as string);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Landlord request retrieved successfully.",
+    data: result,
+  });
+});
+const getOnlyMyRequest=catchAsync(async(req:Request,res:Response,next:NextFunction)=>{
+     const userId = req.user?.id;
+
+  const result = await landlordService.getOnlyMyRequest(userId as string);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Your landlord request retrieved successfully.",
+    data: result,
+  });
 })
+
 
 export const landlordController={
     getAllLandlordRequest,
-    updateLandlordRequest
+    updateLandlordRequest,
+    getSingleRequest,
+    getOnlyMyRequest
 }
