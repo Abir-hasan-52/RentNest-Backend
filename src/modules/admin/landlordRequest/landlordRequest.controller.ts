@@ -14,6 +14,19 @@ sendResponse(res, {
   });
 })
 
-export const landlordRequest={
-    getAllLandlordRequest
+const updateLandlordRequest= catchAsync(async(req:Request,res:Response,next:NextFunction)=>{
+    const {id}=req.params;
+    const payload=req.body;
+    const result = await landlordService.updateLandlordRequestFromDb(id as string,payload);
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "Landlord request updated successfully.",
+      data: result,
+    });
+})
+
+export const landlordController={
+    getAllLandlordRequest,
+    updateLandlordRequest
 }
