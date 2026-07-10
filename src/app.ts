@@ -10,6 +10,7 @@ import { landlordRouter } from "./modules/admin/landlordRequest/landlordRequest.
 import { propertyRouter } from "./modules/landlordProperty/property.route";
 import { publicPropertyRouter } from "./modules/PublicProperty/publicProperty.route";
 import { rentalRequestRouter } from "./modules/rentelRequest_Tenant/rentelRequest.route";
+import { landlordRentalRequestRouter } from "./modules/landlord_rentalRequest/landlordRentalRequest.route";
 
 const app: Application = express();
 
@@ -37,4 +38,5 @@ app.use("/api/admin", landlordRouter);
 app.use("/api/landlord", propertyRouter);
 app.use("/api/public", publicPropertyRouter);
 app.use("/api/tenant", rentalRequestRouter);
+app.use("/api/landlord", landlordRentalRequestRouter);
 export default app;
