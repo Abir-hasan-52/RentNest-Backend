@@ -33,3 +33,5 @@ export interface IUpdateProperty {
   categoryId?: string;
   imageUrls?: string[];
 }
+
+ 

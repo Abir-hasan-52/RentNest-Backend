@@ -1,3 +1,4 @@
+import { PropertyStatus } from "../../../generated/prisma/enums";
 import { prisma } from "../../lib/prisma";
 import { ICreateProperty, IUpdateProperty } from "./property.interface";
 
@@ -103,7 +104,7 @@ const getMyProperty = async (Id: string) => {
 const updatePropertyIntoDb = async (
   propertyId: string,
   landlordId: string,
-  payload: IUpdateProperty
+  payload: IUpdateProperty,
 ) => {
   const { imageUrls, ...propertyData } = payload;
 
@@ -161,8 +162,26 @@ const updatePropertyIntoDb = async (
   return result;
 };
 
+const deletePropertyFromDb = async (propertyId: string, landlordId: string) => {
+  await prisma.property.findFirstOrThrow({
+    where: {
+      id: propertyId,
+      landlordId,
+    },
+  });
+
+  await prisma.property.delete({
+    where: {
+      id: propertyId,
+    },
+  });
+
+  return null;
+};
+
 export const propertyService = {
   createPropertiesIntoDb,
   getMyProperty,
-  updatePropertyIntoDb
+  updatePropertyIntoDb,
+  deletePropertyFromDb,
 };
