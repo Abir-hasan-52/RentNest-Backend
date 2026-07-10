@@ -10,4 +10,9 @@ router.get(
   auth(Role.TENANT),
   rentalRequestController.getMyRentalRequests
 );
+router.get(
+  "/rentals/:id",
+  auth(Role.TENANT),
+  rentalRequestController.getSingleRentalRequest,
+);
 export const rentalRequestRouter=router;

@@ -24,14 +24,35 @@ const createRentalRequest= catchAsync(async(req:Request, res:Response,next:NextF
 const getMyRentalRequests = catchAsync(
   async (req: Request, res: Response,next:NextFunction) => {
     const tenantId = req.user!.id;
-
+    const query=req.query
     const result =
-      await rentalRequestService.getMyRentalRequestsFromDb(tenantId);
+      await rentalRequestService.getMyRentalRequestsFromDb(tenantId,query);
 
     sendResponse(res, {
       success: true,
       statusCode: httpStatus.OK,
       message: "Rental requests retrieved successfully.",
+      meta:result.meta,
+      data: result.data,
+    });
+  },
+);
+
+const getSingleRentalRequest = catchAsync(
+  async (req: Request, res: Response,next:NextFunction) => {
+    const { id } = req.params;
+    const tenantId = req.user!.id;
+
+    const result =
+      await rentalRequestService.getSingleRentalRequestFromDb(
+        id as string,
+        tenantId,
+      );
+
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "Rental request retrieved successfully.",
       data: result,
     });
   },
@@ -39,5 +60,7 @@ const getMyRentalRequests = catchAsync(
 
 export const rentalRequestController={
     createRentalRequest,
-    getMyRentalRequests
+    getMyRentalRequests,
+    getSingleRentalRequest
+    
 }

@@ -3,6 +3,7 @@ import {
   RentalRequestStatus,
 } from "../../../generated/prisma/enums";
 import { prisma } from "../../lib/prisma";
+import { calculatePagination } from "../../utils/calculatePagination";
 import { ICreateRentalRequest } from "./rentelRequest.interface";
 
 const createRentalRequestIntoDb = async (
@@ -104,9 +105,75 @@ const createRentalRequestIntoDb = async (
   return rentalRequest;
 };
 
-const getMyRentalRequestsFromDb = async (tenantId: string) => {
-  const rentalRequests = await prisma.rentalRequest.findMany({
+
+
+const getMyRentalRequestsFromDb = async (
+  tenantId: string,
+  query: Record<string, any>,
+) => {
+  const { page, limit, skip } = calculatePagination(query);
+
+  const where = {
+    tenantId,
+  };
+
+  const [rentalRequests, total] = await prisma.$transaction([
+    prisma.rentalRequest.findMany({
+      where,
+
+      include: {
+        property: {
+          include: {
+            category: true,
+
+            images: true,
+
+            landlord: {
+              omit: {
+                password: true,
+              },
+            },
+          },
+        },
+
+        payment: true,
+
+        review: true,
+      },
+
+      orderBy: {
+        createdAt: "desc",
+      },
+
+      skip,
+
+      take: limit,
+    }),
+
+    prisma.rentalRequest.count({
+      where,
+    }),
+  ]);
+
+  return {
+    meta: {
+      page,
+      limit,
+      total,
+      totalPage: Math.ceil(total / limit),
+    },
+
+    data: rentalRequests,
+  };
+};
+
+const getSingleRentalRequestFromDb = async (
+  rentalRequestId: string,
+  tenantId: string,
+) => {
+  const rentalRequest = await prisma.rentalRequest.findFirstOrThrow({
     where: {
+      id: rentalRequestId,
       tenantId,
     },
     include: {
@@ -124,15 +191,13 @@ const getMyRentalRequestsFromDb = async (tenantId: string) => {
       payment: true,
       review: true,
     },
-    orderBy: {
-      createdAt: "desc",
-    },
   });
 
-  return rentalRequests;
+  return rentalRequest;
 };
 
 export const rentalRequestService = {
   createRentalRequestIntoDb,
-  getMyRentalRequestsFromDb
+  getMyRentalRequestsFromDb,
+  getSingleRentalRequestFromDb
 };
