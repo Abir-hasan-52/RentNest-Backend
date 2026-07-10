@@ -121,6 +121,36 @@ const getAllPropertiesFromDb = async (query: IPropertyQuery) => {
   };
 };
 
+const getSinglePropertyFromDb = async (propertyId: string) => {
+  const property = await prisma.property.findFirstOrThrow({
+    where: {
+      id: propertyId,
+      status: PropertyStatus.AVAILABLE,
+    },
+    include: {
+      category: true,
+      images: true,
+      landlord: {
+        omit: {
+          password: true,
+        },
+      },
+      reviews: {
+        include: {
+          tenant: {
+            omit: {
+              password: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  return property;
+};
+
 export const publicPropertyService={
-    getAllPropertiesFromDb
+    getAllPropertiesFromDb,
+    getSinglePropertyFromDb
 }

@@ -1,6 +1,4 @@
 import { NextFunction, Request, Response } from "express";
-// import { catchAsync } from "../../../utils/catchAsync";
-// import { sendResponse } from "../../../utils/sendResponse";
 import httpStatus from "http-status"
 import { publicPropertyService } from "./publicProperty.service";
 import { catchAsync } from "../../utils/catchAsync";
@@ -18,6 +16,20 @@ const getAllProperties = catchAsync(async (req:Request, res:Response,next:NextFu
   });
 });
 
+const getSingleProperty = catchAsync(async (req: Request, res: Response,next:NextFunction) => {
+  const { id } = req.params;
+
+  const result = await publicPropertyService.getSinglePropertyFromDb(id as string);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Property retrieved successfully.",
+    data: result,
+  });
+});
+
 export const PublicPropertyController={
-    getAllProperties
+    getAllProperties,
+    getSingleProperty
 }
