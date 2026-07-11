@@ -1,5 +1,5 @@
 import cookieParser from "cookie-parser";
-import express, { Application, Request, Response } from "express";
+import express, { Application, NextFunction, Request, Response } from "express";
 import cors from "cors";
 import config from "./config";
 
@@ -17,7 +17,9 @@ import { reviewRouter } from "./modules/review/review.route";
 import { adminDashboardRouter } from "./modules/dashborad/admin/admin.route";
 import { LandlordDashboardRoutes } from "./modules/dashborad/landlord/landlord.route";
 import { tenantDashboardRoutes } from "./modules/dashborad/tenant/tenant.route";
-
+import { notFound } from "./middlewares/notFound";
+import httpStatus from "http-status";
+import { globalErrorHandler } from "./middlewares/golbalErrorHandler";
 const app: Application = express();
 
 app.use(
@@ -57,4 +59,8 @@ app.use("/api/tenant", reviewRouter);
 app.use("/api/admin", adminDashboardRouter);
 app.use("/api/landlord", LandlordDashboardRoutes);
 app.use("/api/tenant", tenantDashboardRoutes);
+
+app.use(notFound);
+
+app.use(globalErrorHandler);
 export default app;
