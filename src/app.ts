@@ -11,6 +11,9 @@ import { propertyRouter } from "./modules/landlordProperty/property.route";
 import { publicPropertyRouter } from "./modules/PublicProperty/publicProperty.route";
 import { rentalRequestRouter } from "./modules/rentelRequest_Tenant/rentelRequest.route";
 import { landlordRentalRequestRouter } from "./modules/landlord_rentalRequest/landlordRentalRequest.route";
+import { paymentRouter } from "./modules/payment/payment.route";
+import { PaymentController } from "./modules/payment/payment.controller";
+ 
 
 const app: Application = express();
 
@@ -20,7 +23,11 @@ app.use(
     credentials: true,
   }),
 );
-
+app.post(
+  "/api/payments/webhook",
+  express.raw({ type: "application/json" }),
+  PaymentController.handleWebhook
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -39,4 +46,6 @@ app.use("/api/landlord", propertyRouter);
 app.use("/api/public", publicPropertyRouter);
 app.use("/api/tenant", rentalRequestRouter);
 app.use("/api/landlord", landlordRentalRequestRouter);
+
+app.use("/api/payments", paymentRouter);
 export default app;
