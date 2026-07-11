@@ -190,7 +190,7 @@ src
 ## Clone Repository
 
 ```bash
-git clone [https://github.com/your-username/rentnest-backend.git](https://github.com/Abir-hasan-52/RentNest-Backend )
+git clone https://github.com/Abir-hasan-52/RentNest-Backend.git
 ```
 
 ---
@@ -661,6 +661,16 @@ https://documenter.getpostman.com/view/54800967/2sBY4LS2dq
 * Multi Payment Gateway Support (SSLCommerz)
 
 ---
+## 👤 Demo Credentials
+
+Use the following demo account to access the admin panel.
+
+| Role      | Email                | Password    |
+| --------- | -------------------- | ----------- |
+| **Admin** | `admin@rentnest.com` | `admin@123` |
+
+> **Note:** These are demo credentials created for testing and evaluation purposes only.
+
 
 # 👨‍💻 Author
 
