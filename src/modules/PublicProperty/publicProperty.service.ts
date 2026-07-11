@@ -150,7 +150,53 @@ const getSinglePropertyFromDb = async (propertyId: string) => {
   return property;
 };
 
+const getPropertyReviewsFromDb = async (propertyId: string) => {
+  // Property Exists
+  await prisma.property.findUniqueOrThrow({
+    where: {
+      id: propertyId,
+    },
+  });
+
+  // Rating Summary
+  const reviewSummary = await prisma.review.aggregate({
+    where: {
+      propertyId,
+    },
+    _avg: {
+      rating: true,
+    },
+    _count: {
+      id: true,
+    },
+  });
+
+  // Reviews
+  const reviews = await prisma.review.findMany({
+    where: {
+      propertyId,
+    },
+    include: {
+      tenant: {
+        omit: {
+          password: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  return {
+    averageRating: reviewSummary._avg.rating ?? 0,
+    totalReviews: reviewSummary._count.id,
+    reviews,
+  };
+};
+
 export const publicPropertyService={
     getAllPropertiesFromDb,
-    getSinglePropertyFromDb
+    getSinglePropertyFromDb,
+    getPropertyReviewsFromDb
 }

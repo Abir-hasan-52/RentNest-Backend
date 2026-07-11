@@ -13,6 +13,8 @@ import { rentalRequestRouter } from "./modules/rentelRequest_Tenant/rentelReques
 import { landlordRentalRequestRouter } from "./modules/landlord_rentalRequest/landlordRentalRequest.route";
 import { paymentRouter } from "./modules/payment/payment.route";
 import { PaymentController } from "./modules/payment/payment.controller";
+import { reviewRouter } from "./modules/review/review.route";
+import { adminDashboardRouter } from "./modules/dashborad/admin/admin.route";
  
 
 const app: Application = express();
@@ -48,4 +50,8 @@ app.use("/api/tenant", rentalRequestRouter);
 app.use("/api/landlord", landlordRentalRequestRouter);
 
 app.use("/api/payments", paymentRouter);
+
+app.use("/api/tenant", reviewRouter);
+
+app.use("/api/admin", adminDashboardRouter)
 export default app;

@@ -3,6 +3,7 @@ import httpStatus from "http-status"
 import { publicPropertyService } from "./publicProperty.service";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
+ 
 
 const getAllProperties = catchAsync(async (req:Request, res:Response,next:NextFunction) => {
   const result = await publicPropertyService.getAllPropertiesFromDb(req.query);
@@ -29,7 +30,24 @@ const getSingleProperty = catchAsync(async (req: Request, res: Response,next:Nex
   });
 });
 
+const getPropertyReviews = catchAsync(
+  async (req: Request, res: Response) => {
+    const { id } = req.params;
+
+    const result =
+      await publicPropertyService.getPropertyReviewsFromDb(id as string);
+
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "Property reviews retrieved successfully.",
+      data: result,
+    });
+  },
+);
+
 export const PublicPropertyController={
     getAllProperties,
-    getSingleProperty
+    getSingleProperty,
+    getPropertyReviews
 }
