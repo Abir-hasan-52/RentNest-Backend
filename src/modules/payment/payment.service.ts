@@ -1,8 +1,7 @@
- 
 import Stripe from "stripe";
 
 import { prisma } from "../../lib/prisma";
- 
+
 import config from "../../config";
 import {
   PaymentStatus,
@@ -13,7 +12,6 @@ import stripe from "../../lib/stripe";
 
 const USD_TO_BDT_RATE = Number(config.exchange_rate_usd_to_bdt) || 110;
 
- 
 // Helpers
 const calculateTotalAmountBDT = (
   rentPerMonth: number,
@@ -27,7 +25,6 @@ const bdtToUsdCents = (amountBDT: number) => {
   return Math.round(amountUSD * 100);
 };
 
- 
 // Create Checkout Session
 
 const createCheckoutSession = async (
@@ -108,9 +105,8 @@ const createCheckoutSession = async (
   return { checkoutUrl: session.url };
 };
 
- 
 // Webhook Handling
- 
+
 const processSuccessfulPayment = async (session: Stripe.Checkout.Session) => {
   // Primary lookup: stripeSessionId. Fallback: metadata.rentalRequestId
   // (protects against edge cases where the session ID somehow doesn't match).
@@ -197,7 +193,83 @@ const handleWebhookEvent = async (rawBody: Buffer, signature: string) => {
   return { received: true };
 };
 
+const getMyPaymentsFromDb = async (
+  tenantId: string,
+  status?: PaymentStatus,
+) => {
+  const where: any = {
+    rentalRequest: {
+      tenantId,
+    },
+  };
+
+  if (status) {
+    where.status = status;
+  }
+  if (status && !Object.values(PaymentStatus).includes(status)) {
+    throw new Error("Invalid payment status.");
+  }
+
+  const payments = await prisma.payment.findMany({
+    where,
+    include: {
+      rentalRequest: {
+        include: {
+          property: {
+            include: {
+              category: true,
+              landlord: {
+                omit: {
+                  password: true,
+                },
+              },
+              images: true,
+            },
+          },
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  return payments;
+};
+
+const getSinglePaymentFromDb = async (paymentId: string, tenantId: string) => {
+  const payment = await prisma.payment.findFirstOrThrow({
+    where: {
+      id: paymentId,
+      rentalRequest: {
+        tenantId,
+      },
+    },
+    include: {
+      rentalRequest: {
+        include: {
+          property: {
+            include: {
+              category: true,
+              images: true,
+              landlord: {
+                omit: {
+                  password: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  return payment;
+};
+
 export const PaymentService = {
   createCheckoutSession,
   handleWebhookEvent,
+  getMyPaymentsFromDb,
+  getSinglePaymentFromDb,
 };

@@ -1,8 +1,9 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import httpStatus from "http-status";
 import { PaymentService } from "./payment.service";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
+import { PaymentStatus } from "../../../generated/prisma/enums";
 
 const createCheckoutSession = catchAsync(
   async (req: Request, res: Response) => {
@@ -53,7 +54,46 @@ const handleWebhook = async (req: Request, res: Response) => {
   }
 };
 
+const getMyPayments = catchAsync(async (req: Request, res: Response , next:NextFunction) => {
+  const tenantId = req.user!.id;
+
+  const { status } = req.query;
+
+  const result = await PaymentService.getMyPaymentsFromDb(
+    tenantId,
+    status as PaymentStatus,
+  );
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Payments retrieved successfully.",
+    data: result,
+  });
+});
+
+const getSinglePayment = catchAsync(
+  async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const tenantId = req.user!.id;
+
+    const result = await PaymentService.getSinglePaymentFromDb(
+      id as string ,
+      tenantId,
+    );
+
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "Payment retrieved successfully.",
+      data: result,
+    });
+  },
+);
+
 export const PaymentController = {
   createCheckoutSession,
   handleWebhook,
+  getMyPayments,
+  getSinglePayment
 };

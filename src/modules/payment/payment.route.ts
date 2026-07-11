@@ -11,4 +11,11 @@ router.post(
   PaymentController.createCheckoutSession,
 );
 
+router.get("/me", auth(Role.TENANT), PaymentController.getMyPayments);
+router.get(
+  "/me/:id",
+  auth(Role.TENANT),
+  PaymentController.getSinglePayment,
+);
+
 export const paymentRouter = router;
