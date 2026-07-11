@@ -15,6 +15,7 @@ import { paymentRouter } from "./modules/payment/payment.route";
 import { PaymentController } from "./modules/payment/payment.controller";
 import { reviewRouter } from "./modules/review/review.route";
 import { adminDashboardRouter } from "./modules/dashborad/admin/admin.route";
+import { LandlordDashboardRoutes } from "./modules/dashborad/landlord/landlord.route";
  
 
 const app: Application = express();
@@ -54,4 +55,5 @@ app.use("/api/payments", paymentRouter);
 app.use("/api/tenant", reviewRouter);
 
 app.use("/api/admin", adminDashboardRouter)
+app.use("/api/landlord",  LandlordDashboardRoutes)
 export default app;

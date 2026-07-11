@@ -8,7 +8,6 @@ import {
 } from "../../../../generated/prisma/enums";
 import { prisma } from "../../../lib/prisma";
 
-// Returns 6 { label, start, end } ranges, oldest first, ending with the current month
 const getLast6MonthRanges = () => {
   const ranges = [];
   const now = new Date();
@@ -16,7 +15,10 @@ const getLast6MonthRanges = () => {
   for (let i = 5; i >= 0; i--) {
     const start = new Date(now.getFullYear(), now.getMonth() - i, 1);
     const end = new Date(now.getFullYear(), now.getMonth() - i + 1, 1);
-    const label = start.toLocaleString("en-US", { month: "short", year: "numeric" });
+    const label = start.toLocaleString("en-US", {
+      month: "short",
+      year: "numeric",
+    });
     ranges.push({ label, start, end });
   }
 
@@ -78,24 +80,42 @@ const getDashboardFromDb = async () => {
     prisma.user.count({ where: { role: Role.ADMIN } }),
     prisma.user.count({ where: { role: Role.LANDLORD } }),
     prisma.user.count({ where: { role: Role.TENANT } }),
-    prisma.user.count({ where: { createdAt: { gte: monthStart, lt: monthEnd } } }),
+    prisma.user.count({
+      where: { createdAt: { gte: monthStart, lt: monthEnd } },
+    }),
     prisma.user.count({ where: { status: UserStatus.BANNED } }),
 
     prisma.property.count(),
     prisma.property.count({ where: { status: PropertyStatus.AVAILABLE } }),
     prisma.property.count({ where: { status: PropertyStatus.RENTED } }),
-    prisma.property.count({ where: { createdAt: { gte: monthStart, lt: monthEnd } } }),
+    prisma.property.count({
+      where: { createdAt: { gte: monthStart, lt: monthEnd } },
+    }),
 
     prisma.landlordRequest.count({ where: { status: ApprovalStatus.PENDING } }),
-    prisma.landlordRequest.count({ where: { status: ApprovalStatus.APPROVED } }),
-    prisma.landlordRequest.count({ where: { status: ApprovalStatus.REJECTED } }),
+    prisma.landlordRequest.count({
+      where: { status: ApprovalStatus.APPROVED },
+    }),
+    prisma.landlordRequest.count({
+      where: { status: ApprovalStatus.REJECTED },
+    }),
 
     prisma.rentalRequest.count(),
-    prisma.rentalRequest.count({ where: { status: RentalRequestStatus.PENDING } }),
-    prisma.rentalRequest.count({ where: { status: RentalRequestStatus.APPROVED } }),
-    prisma.rentalRequest.count({ where: { status: RentalRequestStatus.REJECTED } }),
-    prisma.rentalRequest.count({ where: { status: RentalRequestStatus.ACTIVE } }),
-    prisma.rentalRequest.count({ where: { status: RentalRequestStatus.COMPLETED } }),
+    prisma.rentalRequest.count({
+      where: { status: RentalRequestStatus.PENDING },
+    }),
+    prisma.rentalRequest.count({
+      where: { status: RentalRequestStatus.APPROVED },
+    }),
+    prisma.rentalRequest.count({
+      where: { status: RentalRequestStatus.REJECTED },
+    }),
+    prisma.rentalRequest.count({
+      where: { status: RentalRequestStatus.ACTIVE },
+    }),
+    prisma.rentalRequest.count({
+      where: { status: RentalRequestStatus.COMPLETED },
+    }),
     prisma.rentalRequest.aggregate({ _avg: { rentalDuration: true } }),
 
     prisma.payment.count(),
@@ -168,8 +188,8 @@ const getDashboardFromDb = async () => {
             paidAt: { gte: range.start, lt: range.end },
           },
           _sum: { amount: true },
-        })
-      )
+        }),
+      ),
     ),
 
     // One count query per month for user growth trend
@@ -177,8 +197,8 @@ const getDashboardFromDb = async () => {
       monthRanges.map((range) =>
         prisma.user.count({
           where: { createdAt: { gte: range.start, lt: range.end } },
-        })
-      )
+        }),
+      ),
     ),
   ]);
 
@@ -204,7 +224,8 @@ const getDashboardFromDb = async () => {
     : [];
 
   const categoryDistribution = propertiesByCategory.map((entry) => ({
-    category: categoryDetails.find((c) => c.id === entry.categoryId)?.name ?? "Unknown",
+    category:
+      categoryDetails.find((c) => c.id === entry.categoryId)?.name ?? "Unknown",
     count: entry._count.id,
   }));
 
@@ -225,7 +246,9 @@ const getDashboardFromDb = async () => {
 
   const approvedOrBeyond = approvedRentals + activeRentals + completedRentals;
   const rentalApprovalRate =
-    totalRentals > 0 ? Number(((approvedOrBeyond / totalRentals) * 100).toFixed(1)) : 0;
+    totalRentals > 0
+      ? Number(((approvedOrBeyond / totalRentals) * 100).toFixed(1))
+      : 0;
 
   const activeUserRate =
     totalUsers > 0
@@ -234,7 +257,7 @@ const getDashboardFromDb = async () => {
 
   const revenueTrend = monthRanges.map((range, i) => ({
     month: range.label,
-    revenue: Number(revenueTrendRaw[i]._sum.amount ?? 0),
+    revenue: Number(revenueTrendRaw[i]?._sum.amount ?? 0),
   }));
 
   const userGrowthTrend = monthRanges.map((range, i) => ({
@@ -275,7 +298,9 @@ const getDashboardFromDb = async () => {
       active: activeRentals,
       completed: completedRentals,
       approvalRate: rentalApprovalRate, // percentage
-      avgDurationMonths: Number((avgRentalDuration._avg.rentalDuration ?? 0).toFixed(1)),
+      avgDurationMonths: Number(
+        (avgRentalDuration._avg.rentalDuration ?? 0).toFixed(1),
+      ),
     },
 
     payments: {
