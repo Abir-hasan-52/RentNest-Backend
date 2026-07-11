@@ -16,7 +16,7 @@ import { PaymentController } from "./modules/payment/payment.controller";
 import { reviewRouter } from "./modules/review/review.route";
 import { adminDashboardRouter } from "./modules/dashborad/admin/admin.route";
 import { LandlordDashboardRoutes } from "./modules/dashborad/landlord/landlord.route";
- 
+import { tenantDashboardRoutes } from "./modules/dashborad/tenant/tenant.route";
 
 const app: Application = express();
 
@@ -29,7 +29,7 @@ app.use(
 app.post(
   "/api/payments/webhook",
   express.raw({ type: "application/json" }),
-  PaymentController.handleWebhook
+  PaymentController.handleWebhook,
 );
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -54,6 +54,7 @@ app.use("/api/payments", paymentRouter);
 
 app.use("/api/tenant", reviewRouter);
 
-app.use("/api/admin", adminDashboardRouter)
-app.use("/api/landlord",  LandlordDashboardRoutes)
+app.use("/api/admin", adminDashboardRouter);
+app.use("/api/landlord", LandlordDashboardRoutes);
+app.use("/api/tenant", tenantDashboardRoutes);
 export default app;
