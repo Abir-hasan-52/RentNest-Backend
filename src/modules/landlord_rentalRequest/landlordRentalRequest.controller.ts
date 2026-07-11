@@ -65,8 +65,30 @@ const updateRentalRequestForLandlord = catchAsync(
   },
 );
 
+const completeRental = catchAsync(
+  async (req: Request, res: Response) => {
+    const { id } = req.params;
+
+    const landlordId = req.user!.id;
+
+    const result =
+      await landlordRentalRequestService.completeRentalFromDb(
+        id as string,
+        landlordId,
+      );
+
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "Rental completed successfully.",
+      data: result,
+    });
+  },
+);
+
 export const landlordRentalRequestController={
     getAllRentalRequestsForLandlord,
     getSingleRentalRequestForLandlord,
-    updateRentalRequestForLandlord
+    updateRentalRequestForLandlord,
+    completeRental
 }

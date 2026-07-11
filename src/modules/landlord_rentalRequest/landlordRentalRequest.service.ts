@@ -1,4 +1,5 @@
-import { RentalRequestStatus } from "../../../generated/prisma/enums";
+import { addMonths } from "date-fns";
+import { PropertyStatus, RentalRequestStatus } from "../../../generated/prisma/enums";
 import { prisma } from "../../lib/prisma";
 import { calculatePagination } from "../../utils/calculatePagination";
 import { IUpdateRentalRequest } from "./landlordRentalRequest.interface";
@@ -203,10 +204,86 @@ const updateRentalRequestForLandlordFromDb = async (
   return result;
 };
 
+const completeRentalFromDb = async (
+  rentalRequestId: string,
+  landlordId: string,
+) => {
+  // Get Rental Request
+  const rentalRequest = await prisma.rentalRequest.findUniqueOrThrow({
+    where: {
+      id: rentalRequestId,
+    },
+    include: {
+      property: true,
+    },
+  });
+
+  // Check Ownership
+  if (rentalRequest.property.landlordId !== landlordId) {
+    throw new Error(
+      "You are not authorized to complete this rental.",
+    );
+  }
+
+  // Rental must be ACTIVE
+  if (rentalRequest.status !== RentalRequestStatus.ACTIVE) {
+    throw new Error(
+      "Only active rentals can be completed.",
+    );
+  }
+
+  // Property must be RENTED
+  if (rentalRequest.property.status !== PropertyStatus.RENTED) {
+    throw new Error(
+      "This property is not currently rented.",
+    );
+  }
+
+  // Calculate Rental End Date
+  const endDate = addMonths(
+    rentalRequest.moveInDate,
+    rentalRequest.rentalDuration,
+  );
+
+  // Cannot complete before rental period ends
+  if (new Date() < endDate) {
+    throw new Error(
+      `Rental period has not ended yet. Rental ends on ${endDate.toDateString()}.`,
+    );
+  }
+
+  // Complete Rental + Make Property Available
+  const result = await prisma.$transaction(async (tx) => {
+    const completedRental = await tx.rentalRequest.update({
+      where: {
+        id: rentalRequest.id,
+      },
+      data: {
+        status: RentalRequestStatus.COMPLETED,
+        completedAt: new Date(),
+      },
+    });
+
+    await tx.property.update({
+      where: {
+        id: rentalRequest.propertyId,
+      },
+      data: {
+        status: PropertyStatus.AVAILABLE,
+      },
+    });
+
+    return completedRental;
+  });
+
+  return result;
+};
+
  
 
 export const landlordRentalRequestService = {
   getAllRentalRequestsForLandlordFromDb,
   getSingleRentalRequestForLandlordFromDb,
-  updateRentalRequestForLandlordFromDb
+  updateRentalRequestForLandlordFromDb,
+  completeRentalFromDb
 };

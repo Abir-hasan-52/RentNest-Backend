@@ -22,4 +22,10 @@ router.patch(
   landlordRentalRequestController.updateRentalRequestForLandlord,
 );
 
+router.patch(
+  "/rental-requests/:id/complete",
+  auth(Role.LANDLORD),
+  landlordRentalRequestController.completeRental,
+);
+
 export const landlordRentalRequestRouter = router;
